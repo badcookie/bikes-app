@@ -12,26 +12,24 @@ stages:
   - check
   - test
 
+before_script:
+  - python -V
+  - pip install --upgrade pip
+  - python -m venv venv
+  - source venv/bin/activate
+  - pip install -r requirements.txt
+
 code-quality:
   stage: check
   only:
     - /^lecture_.*$/
-  before_script:
-    - pip install --upgrade pip
-    - pip install black flake8
   script:
-    - black --exclude=\venv --check .
+    - black --exclude=\venv --diff .
     - flake8
 
 test:
   stage: test
   only:
     - /^lecture_.*$/
-  before_script:
-    - python -V
-    - pip install --upgrade pip
-    - python -m venv venv
-    - source venv/bin/activate
-    - pip install -r requirements.txt
   script:
     - pytest $CI_COMMIT_REF_NAME
