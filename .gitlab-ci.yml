@@ -1,0 +1,37 @@
+image: python:3.7.3
+
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+stages:
+  - check
+  - test
+
+code-quality:
+  stage: check
+  only:
+    - /^lecture_.*$/
+  before_script:
+    - pip install --upgrade pip
+    - pip install black flake8
+  script:
+    - black --exclude=\venv --check .
+    - flake8
+
+test:
+  stage: test
+  only:
+    - /^lecture_.*$/
+  before_script:
+    - python -V
+    - pip install --upgrade pip
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+  script:
+    - pytest $CI_COMMIT_REF_NAME
