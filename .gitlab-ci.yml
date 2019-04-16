@@ -21,6 +21,8 @@ before_script:
 
 code-quality:
   stage: check
+  tags:
+    - docker
   only:
     - /^lecture_.*$/
   script:
@@ -29,6 +31,8 @@ code-quality:
 
 test:
   stage: test
+  tags:
+    - docker
   only:
     - /^lecture_.*$/
   script:
