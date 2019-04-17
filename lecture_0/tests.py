@@ -4,7 +4,8 @@ from functions import is_name, normalize_full_name
 def test_is_name():
     """
     Реализовать проверку, того что строка начинается с заглавной буквы
-    https://docs.python.org/3.4/library/string.html
+    https://docs.python.org/3/tutorial/controlflow.html#defining-functions
+    https://docs.python.org/3.4/library/stdtypes.html#string-methods
     :return:
     """
     assert is_name('Ivan')
@@ -16,7 +17,8 @@ def test_normalize_full_name():
     """
     Реализовать функцию, которая на вход принимает именнованный аргументы,
     а возвращает строку в которой записаны через пробел first_name last_name
-    https://docs.python.org/3.4/library/string.html
+    https://docs.python.org/3/tutorial/controlflow.html#keyword-arguments
+    https://docs.python.org/3/library/functions.html#format
     :return:
     """
     assert 'Ivan Petrov' == normalize_full_name(last_name='Petrov', first_name='Ivan')
