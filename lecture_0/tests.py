@@ -16,13 +16,18 @@ def test_is_name():
 def test_normalize_full_name():
     """
     Реализовать функцию, которая на вход принимает именнованный аргументы,
-    а возвращает строку в которой записаны через пробел first_name last_name
+    а возвращает строку в которой записаны через пробел first_name last_name. В случае
+    если нет одного из них возвращать только 1 строку или если нет обоих пустую строку
+    https://docs.python.org/3/tutorial/controlflow.html#if-statements
     https://docs.python.org/3/tutorial/controlflow.html#keyword-arguments
     https://docs.python.org/3/library/functions.html#format
     :return:
     """
     assert 'Ivan Petrov' == normalize_full_name(last_name='Petrov', first_name='Ivan')
     assert 'Adam Smith' == normalize_full_name(first_name='Adam', last_name='Smith')
+    assert 'Helen' == normalize_full_name(first_name='Helen')
+    assert 'Ivanov' == normalize_full_name(last_name='Ivanov')
+    assert '' == normalize_full_name()
 
 
 def test_functions():
