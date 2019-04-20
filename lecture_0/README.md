@@ -49,3 +49,24 @@
 - [Классы](https://docs.python.org/3/tutorial/classes.html)
 
 ### Задание, порядок работы (5 минут)
+Для того чтобы CI сработал название ветки `lecture_0`.
+Чтобы проверить надо смотреть вкладку `CI/CD-Pipelines`
+Локальный запуск Code Quality
+```bash
+black --exclude=\venv lecture_0/
+flake8 lecture_0/
+```
+Локальный запуск Tests
+```bash
+cd lecture_0
+pytest tests.py
+```
+Локальный запуск Tests, конкректного теста. Чтобы не было ошибок, 
+можно закомментировать строки импорта
+```bash
+cd lecture_0
+pytest tests.py::test_is_name
+```
+
+
+Для следующих лекций меняем `lecture_0` на `lecture_{номер лекции}`
