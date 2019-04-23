@@ -9,33 +9,33 @@ def normalize_full_name(first_name='', last_name=''):
 
 
 def increase_list(*args):
-    first, second, *rest = args
+    first_value, second_value, *rest = args
     factor = 2
-    return [first * factor, second * factor]
+    return [first_value * factor, second_value * factor]
 
 
-def filter_list(lst):
-    return list(filter(lambda item: item > 0, lst))
+def filter_list(items):
+    return list(filter(lambda item: item > 0, items))
 
 
-def max_list(lst, first_num, second_num):
-    if first_num == second_num:
+def max_list(items, first_number, second_number):
+    if first_number == second_number:
         return
 
-    max_num = first_num if first_num > second_num else second_num
-    lst.append(max_num)
+    max_number = first_number if first_number > second_number else second_number
+    items.append(max_number)
 
 
 def get_dictionary(key, value):
     return {key: value}
 
 
-def set_dictionary(dct, key, value):
-    dct[key] = value
+def set_dictionary(items, key, value):
+    items[key] = value
 
 
-def swap_dictionary(dct):
-    return {value: key for key, value in dct.items()}
+def swap_dictionary(items):
+    return {value: key for key, value in items.items()}
 
 
 def increase(factor):
