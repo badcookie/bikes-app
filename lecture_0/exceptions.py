@@ -1,5 +1,5 @@
-def get_diff(first_num: int, second_num: int) -> int:
-    if second_num >= first_num:
+def get_diff(first_number: int, second_number: int) -> int:
+    if second_number >= first_number:
         raise ValueError('Max error')
 
-    return first_num - second_num
+    return first_number - second_number
