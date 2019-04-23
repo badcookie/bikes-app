@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class StudentCourseError(Exception):
     """Handles errors referred to Student class.
 
@@ -8,7 +11,7 @@ class StudentCourseError(Exception):
 
     """
 
-    def __init__(self, message):
+    def __init__(self, message: str) -> None:
         self.message = message
 
 
@@ -29,12 +32,12 @@ class Student:
 
     """
 
-    def __init__(self, full_name, course_name=None):
+    def __init__(self, full_name: str, course_name: Optional[str]) -> None:
         self.full_name = full_name
         self.course_name = course_name
         self.course_num = 1
 
-    def next_course(self):
+    def next_course(self) -> None:
         """Increases student's course number by one.
 
         Raises
@@ -52,7 +55,7 @@ class Student:
 
         self.course_num += 1
 
-    def change_course(self, course_name):
+    def change_course(self, course_name: str) -> None:
         """Changes student's course.
 
         Parameters
@@ -70,7 +73,7 @@ class Student:
         self.course_name = course_name
         self.course_num = 1
 
-    def get_diploma(self):
+    def get_diploma(self) -> str:
         """Builds info on student's completed course.
 
         Returns
