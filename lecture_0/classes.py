@@ -32,7 +32,7 @@ class Student:
 
     """
 
-    def __init__(self, full_name: str, course_name: Optional[str]) -> None:
+    def __init__(self, full_name: str, course_name: Optional[str] = None) -> None:
         self.full_name = full_name
         self.course_name = course_name
         self.course_num = 1
