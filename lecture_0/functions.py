@@ -42,13 +42,18 @@ def normalize_full_name(first_name: str = '', last_name: str = '') -> str:
     return full_name if first_name and last_name else partial_name
 
 
-def increase_list(*args: int) -> List[int]:
-    """Builds a list of two elements multiplied by 2.
+def increase_list(first_item: int, second_item: int, factor: int) -> List[int]:
+    """Builds a list of two elements multiplied by input factor.
 
     Parameters
     ----------
-    args
-        Bunch of numeric arguments.
+    first_item
+        First value in output list.
+    second_item
+        Second value in output list.
+    factor
+        Value to multiply the first two
+        numbers by.
 
     Returns
     -------
@@ -57,10 +62,7 @@ def increase_list(*args: int) -> List[int]:
         input arguments.
 
     """
-
-    first_value, second_value, *rest = args
-    factor = 2
-    return [first_value * factor, second_value * factor]
+    return [first_item * factor, second_item * factor]
 
 
 def filter_list(items: List[int]) -> List[int]:
