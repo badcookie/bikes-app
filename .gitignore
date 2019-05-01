@@ -5,3 +5,4 @@ __pycache__
 .env
 temp
 venv
+db.sqlite3
