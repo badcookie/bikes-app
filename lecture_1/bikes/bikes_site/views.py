@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
-from .models import Category, Motobike
+from .models import Category, Motobike, Company
 from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 import json
@@ -72,7 +72,19 @@ class CategoryView(DetailView):
 
         category_id = kwargs['pk']
         category_name = get_object_or_404(Category, id=category_id).name
-        vehicles_list = list(Motobike.objects.filter(category=category_name).values())
+        query_list = list(Motobike.objects.filter(category_id=category_id).values())
+        vehicles_list = list(
+            map(
+                lambda item: dict(
+                    id=item['id'],
+                    name=item['name'],
+                    description=item['description'],
+                    vendor=Company.objects.get(id=item['company_id']).name,
+                    category=category_name,
+                ),
+                query_list,
+            )
+        )
         category_data = json.dumps(vehicles_list)
         return HttpResponse(category_data)
 
