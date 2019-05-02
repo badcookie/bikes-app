@@ -2,7 +2,6 @@ from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from .models import Category, Motobike, Company
 from django.shortcuts import get_object_or_404
-from django.forms.models import model_to_dict
 import json
 
 
@@ -111,6 +110,13 @@ class MotobikeView(DetailView):
         """
 
         motobike_id = kwargs['pk']
-        motobike_object = get_object_or_404(Motobike, id=motobike_id)
-        motobike_data = json.dumps(model_to_dict(motobike_object))
+        query = get_object_or_404(Motobike, id=motobike_id).__dict__
+        motobike_object = dict(
+            id=query['id'],
+            name=query['name'],
+            category=Category.objects.get(id=query['category_id']).name,
+            vendor=Company.objects.get(id=query['company_id']).name,
+            description=query['description'],
+        )
+        motobike_data = json.dumps(motobike_object)
         return HttpResponse(motobike_data)
