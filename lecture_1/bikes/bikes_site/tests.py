@@ -61,8 +61,8 @@ def test_category(setup):
     response_data = json.loads(response.content.decode('utf-8'))
     assert len(response_data) == 2
     assert response_data[1]['name'] == 'Ninja Turbo'
-    assert response_data[1]['company_id'] == 'Kawasaki'  # vendor -> company_id
-    assert response_data[1]['category_id'] == 'Мотоциклы'  # category -> category_id
+    assert response_data[1]['vendor'] == 'Kawasaki'
+    assert response_data[1]['category'] == 'Мотоциклы'
     assert response_data[1]['description'] == ''
 
     response = client.get(f'/categories/25/')
@@ -78,7 +78,7 @@ def test_details(setup):
 
     response_data = json.loads(response.content.decode('utf-8'))
     assert response_data['name'] == 'Ninja'
-    assert response_data['company'] == 'Kawasaki'  # vendor -> company
+    assert response_data['vendor'] == 'Kawasaki'
     assert response_data['category'] == 'Мотоциклы'
     assert response_data['description'] == ''
 
