@@ -36,4 +36,5 @@ test:
   only:
     - /^lecture_.*$/
   script:
-    - pytest $CI_COMMIT_REF_NAME
+    - pytest --ignore=./lecture_1/
+    - cd ./lecture_1/bikes/ && pytest
