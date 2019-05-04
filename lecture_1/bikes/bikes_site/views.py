@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
-from .models import Category, Motobike, Company
+from .models import Category, Motobike
 from django.shortcuts import get_object_or_404
 from django.db.models import F, Value, CharField
+from django.core.exceptions import ObjectDoesNotExist
 import json
 
 
@@ -108,13 +109,17 @@ class MotobikeView(DetailView):
         """
 
         motobike_id = kwargs['pk']
-        query = get_object_or_404(Motobike, id=motobike_id).__dict__
-        motobike_object = dict(
-            id=query['id'],
-            name=query['name'],
-            category=Category.objects.get(id=query['category_id']).name,
-            vendor=Company.objects.get(id=query['company_id']).name,
-            description=query['description'],
-        )
-        motobike_data = json.dumps(motobike_object)
+
+        try:
+            query = (
+                Motobike.objects.annotate(vendor=F('company_id__name'))
+                .values('name', 'vendor', 'description')
+                .annotate(category=F('category_id__name'))
+                .values('name', 'vendor', 'description', 'category')
+                .get(id=motobike_id)
+            )
+        except ObjectDoesNotExist:
+            return HttpResponse(status=404)
+
+        motobike_data = json.dumps(query)
         return HttpResponse(motobike_data)
