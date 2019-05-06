@@ -24,30 +24,28 @@ def create_issues(issue_id):
     :return:
     """
     issue = issues[issue_id]
-    assign_to = issue.pop('assign_to')
     due_date = issue['start_date'] + datetime.timedelta(days=7)
-    base_issue = redmine.issue.create(
+    base_issue_kwargs = dict(
         project_id=project_id,
         tracker_id=tracker_id,
         status_id=status_id,
         priority_id=priority_id,
-        assigned_to_id=assign_to,
         due_date=due_date,
-        **issue,
+        start_date=issue['start_date'],
+    )
+    base_issue = redmine.issue.create(
+        assigned_to_id=issues['assign_to'],
+        subject=issue['subject'],
+        **base_issue_kwargs,
     )
     for user in users:
         # TODO: сделать проверку, что такого задания еще нет.
         try:
             redmine.issue.create(
-                project_id=project_id,
-                tracker_id=tracker_id,
-                status_id=status_id,
-                priority_id=priority_id,
                 assigned_to_id=user['id'],
                 parent_issue_id=base_issue.id,
-                due_date=due_date,
-                start_date=issue['start_date'],
-                subject='{}: {}'.format(issue['subject'], user['name'])
+                subject='{}: {}'.format(issue['subject'], user['name']),
+                **base_issue_kwargs
             )
         except Exception as e:
             # Наш redmine отдает ответ с ошибкой, поэтому просто игнорируем
