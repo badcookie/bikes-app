@@ -61,8 +61,10 @@ class CategoriesListView(ListView):
         return JsonResponse(list(categories), safe=False)
 
 
-class CategoryView(DetailView):
+class CategoryView(ListView):
     """Handles requests on 'categories/<int:pk>/' url."""
+
+    model = Category
 
     def get(self, request, *args, **kwargs):
         """Handles GET request responding with vehicles list.
@@ -82,20 +84,15 @@ class CategoryView(DetailView):
 
         """
 
-        category_id = kwargs['pk']
-        category_name = get_object_or_404(Category, id=category_id).name
-
+        category = get_object_or_404(self.get_queryset(), id=kwargs['pk'])
         query = (
-            Motobike.objects.filter(category_id=category_id)
+            Motobike.objects.filter(category_id=category.id)
             .annotate(vendor=F('company_id__name'))
             .values('name', 'vendor', 'description')
-            .annotate(category=Value(category_name, output_field=CharField()))
-            .values('name', 'vendor', 'description', 'category')
+            .annotate(category=Value(category.name, output_field=CharField()))
         )
 
-        vehicles_list = list(query)
-        category_data = json.dumps(vehicles_list)
-        return HttpResponse(category_data)
+        return JsonResponse(list(query), safe=False)
 
 
 class MotobikeView(DetailView):
