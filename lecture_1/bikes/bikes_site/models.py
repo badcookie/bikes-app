@@ -20,6 +20,7 @@ class Motobike(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
+    image = models.ImageField(blank=True)
 
     def __str__(self):
         return self.name
