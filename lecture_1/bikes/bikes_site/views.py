@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.generic import ListView, DetailView
 from .models import Category, Motobike
 from django.shortcuts import get_object_or_404
@@ -27,6 +27,18 @@ def index(request):
 class CategoriesListView(ListView):
     """Handles requests on 'categories/' url."""
 
+    model = Category
+
+    def get_queryset(self):
+        """Defines a default query to be returned.
+
+        Returns
+        -------
+            QuerySet of all categories' data.
+        """
+
+        return Category.objects.all().values()
+
     def get(self, request, *args, **kwargs):
         """Handles GET request responding with categories list.
 
@@ -45,9 +57,8 @@ class CategoriesListView(ListView):
 
         """
 
-        categories_list = list(Category.objects.all().values())
-        categories_data = json.dumps(categories_list)
-        return HttpResponse(categories_data)
+        categories = self.get_queryset()
+        return JsonResponse(list(categories), safe=False)
 
 
 class CategoryView(DetailView):
