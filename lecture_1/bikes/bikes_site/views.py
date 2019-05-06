@@ -4,7 +4,6 @@ from .models import Category, Motobike
 from django.shortcuts import get_object_or_404
 from django.db.models import F, Value, CharField
 from django.core.exceptions import ObjectDoesNotExist
-import json
 
 
 def index(request):
@@ -35,9 +34,10 @@ class CategoriesListView(ListView):
         Returns
         -------
             QuerySet of all categories' data.
+
         """
 
-        return Category.objects.all().values()
+        return self.model.objects.all().values()
 
     def get(self, request, *args, **kwargs):
         """Handles GET request responding with categories list.
@@ -85,18 +85,41 @@ class CategoryView(ListView):
         """
 
         category = get_object_or_404(self.get_queryset(), id=kwargs['pk'])
-        query = (
+        category_vehicles = (
             Motobike.objects.filter(category_id=category.id)
             .annotate(vendor=F('company_id__name'))
             .values('name', 'vendor', 'description')
             .annotate(category=Value(category.name, output_field=CharField()))
         )
 
-        return JsonResponse(list(query), safe=False)
+        return JsonResponse(list(category_vehicles), safe=False)
 
 
 class MotobikeView(DetailView):
     """Handles requests on 'details/<int:pk>/' url."""
+
+    model = Motobike
+
+    def get_object(self, queryset=None):
+        """Defines a default query to be returned for a vehicle instance.
+
+        Parameters
+        ----------
+        queryset
+            Signature argument.
+
+        Returns
+        -------
+            Specific vehicle object.
+
+        """
+
+        return (
+            self.model.objects.annotate(vendor=F('company_id__name'))
+            .values('name', 'vendor', 'description')
+            .annotate(category=F('category_id__name'))
+            .get(id=self.kwargs['pk'])
+        )
 
     def get(self, request, *args, **kwargs):
         """Handles GET request responding with vehicle data.
@@ -116,18 +139,9 @@ class MotobikeView(DetailView):
 
         """
 
-        motobike_id = kwargs['pk']
-
         try:
-            query = (
-                Motobike.objects.annotate(vendor=F('company_id__name'))
-                .values('name', 'vendor', 'description')
-                .annotate(category=F('category_id__name'))
-                .values('name', 'vendor', 'description', 'category')
-                .get(id=motobike_id)
-            )
+            vehicle = self.get_object()
         except ObjectDoesNotExist:
             return HttpResponse(status=404)
 
-        motobike_data = json.dumps(query)
-        return HttpResponse(motobike_data)
+        return JsonResponse(vehicle)
