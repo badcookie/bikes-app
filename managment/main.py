@@ -33,11 +33,15 @@ def create_issues(issue_id):
         due_date=due_date,
         start_date=issue['start_date'],
     )
-    base_issue = redmine.issue.create(
-        assigned_to_id=issues['assign_to'],
-        subject=issue['subject'],
-        **base_issue_kwargs,
-    )
+    try:
+        base_issue = redmine.issue.create(
+            assigned_to_id=issues['assign_to'],
+            subject=issue['subject'],
+            **base_issue_kwargs,
+        )
+    except Exception as e:
+        # Наш redmine отдает ответ с ошибкой, поэтому просто игнорируем
+        print(f'For {issues["assign_to"]}, created with exception {e}')
     for user in users:
         # TODO: сделать проверку, что такого задания еще нет.
         try:
