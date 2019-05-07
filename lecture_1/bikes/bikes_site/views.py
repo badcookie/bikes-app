@@ -86,10 +86,10 @@ class CategoryView(ListView):
 
         category = get_object_or_404(self.get_queryset(), id=kwargs['pk'])
         category_vehicles = (
-            Motobike.objects.filter(category_id=category.id)
+            Motobike.objects.filter(category=category)
             .annotate(vendor=F('company_id__name'))
             .values('name', 'vendor', 'description')
-            .annotate(category=Value(category.name, output_field=CharField()))
+            .annotate(category=Value(category, output_field=CharField()))
         )
 
         return JsonResponse(list(category_vehicles), safe=False)
