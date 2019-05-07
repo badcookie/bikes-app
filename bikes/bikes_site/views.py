@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import ListView, DetailView
-from .models import Category, Motobike
+from .models import Category, Product
 from django.shortcuts import get_object_or_404
 
 
@@ -74,7 +74,7 @@ class CategoryView(ListView):
         """
 
         category = get_object_or_404(self.get_queryset(), id=kwargs['pk'])
-        motobikes = Motobike.objects.filter(category=category)
+        motobikes = Product.objects.filter(category=category)
         category_vehicles_list = [
             {
                 "id": item.id,
@@ -92,7 +92,7 @@ class CategoryView(ListView):
 class MotobikeView(DetailView):
     """Handles requests on 'details/<int:pk>/' url."""
 
-    model = Motobike
+    model = Product
 
     def get(self, request, *args, **kwargs):
         """Handles GET request responding with vehicle data.
