@@ -2,8 +2,6 @@ from django.http import HttpResponse, JsonResponse
 from django.views.generic import ListView, DetailView
 from .models import Category, Motobike
 from django.shortcuts import get_object_or_404
-from django.db.models import F, Value, CharField
-from django.core.exceptions import ObjectDoesNotExist
 
 
 def index(request):
@@ -28,17 +26,6 @@ class CategoriesListView(ListView):
 
     model = Category
 
-    def get_queryset(self):
-        """Defines a default query to be returned.
-
-        Returns
-        -------
-            QuerySet of all categories' data.
-
-        """
-
-        return self.model.objects.all().values()
-
     def get(self, request, *args, **kwargs):
         """Handles GET request responding with categories list.
 
@@ -58,7 +45,9 @@ class CategoriesListView(ListView):
         """
 
         categories = self.get_queryset()
-        return JsonResponse(list(categories), safe=False)
+        categories_list = [{"id": item.id, "name": item.name} for item in categories]
+
+        return JsonResponse(categories_list, safe=False)
 
 
 class CategoryView(ListView):
@@ -85,41 +74,25 @@ class CategoryView(ListView):
         """
 
         category = get_object_or_404(self.get_queryset(), id=kwargs['pk'])
-        category_vehicles = (
-            Motobike.objects.filter(category=category)
-            .annotate(vendor=F('company_id__name'))
-            .values('name', 'vendor', 'description')
-            .annotate(category=Value(category, output_field=CharField()))
-        )
+        motobikes = Motobike.objects.filter(category=category)
+        category_vehicles_list = [
+            {
+                "id": item.id,
+                "name": item.name,
+                "vendor": item.company.name,
+                "category": item.category.name,
+                "description": item.description,
+            }
+            for item in motobikes
+        ]
 
-        return JsonResponse(list(category_vehicles), safe=False)
+        return JsonResponse(category_vehicles_list, safe=False)
 
 
 class MotobikeView(DetailView):
     """Handles requests on 'details/<int:pk>/' url."""
 
     model = Motobike
-
-    def get_object(self, queryset=None):
-        """Defines a default query to be returned for a vehicle instance.
-
-        Parameters
-        ----------
-        queryset
-            Signature argument.
-
-        Returns
-        -------
-            Specific vehicle object.
-
-        """
-
-        return (
-            self.model.objects.annotate(vendor=F('company_id__name'))
-            .values('name', 'vendor', 'description')
-            .annotate(category=F('category_id__name'))
-            .get(id=self.kwargs['pk'])
-        )
 
     def get(self, request, *args, **kwargs):
         """Handles GET request responding with vehicle data.
@@ -139,9 +112,13 @@ class MotobikeView(DetailView):
 
         """
 
-        try:
-            vehicle = self.get_object()
-        except ObjectDoesNotExist:
-            return HttpResponse(status=404)
+        vehicle = get_object_or_404(self.model, id=kwargs['pk'])
+        vehicle_data = {
+            "id": vehicle.id,
+            "name": vehicle.name,
+            "vendor": vehicle.company.name,
+            "category": vehicle.category.name,
+            "description": vehicle.description,
+        }
 
-        return JsonResponse(vehicle)
+        return JsonResponse(vehicle_data)
