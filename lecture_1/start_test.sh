@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-cd ./lecture_1/bikes/ && pytest -v
+cd ./bikes/ && pytest -v
