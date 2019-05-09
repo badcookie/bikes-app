@@ -1,124 +1,72 @@
-from django.http import HttpResponse, JsonResponse
-from django.views.generic import ListView, DetailView
-from .models import Category, Product
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from .models import Product, Manager, Category
+from .serializers import (
+    ProductSerializer,
+    CategoryProductSerializer,
+    PublicProductSerializer,
+    PublicCategoryProductSerializer,
+)
 
 
-def index(request):
-    """Greets the World.
-
-    Parameters
-    ----------
-    request
-        HTTP request for '' url.
-
-    Returns
-    -------
-        Response with a greeting string.
-
-    """
-
-    return HttpResponse("Hello, world. You're at the index.")
+class PublicProductListPagination(PageNumberPagination):
+    page_size = 5
 
 
-class CategoriesListView(ListView):
-    """Handles requests on 'categories/' url."""
+class ProductViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ProductSerializer
 
-    model = Category
+    def get_queryset(self):
+        manager = get_object_or_404(Manager, user=self.request.user)
+        products = Product.objects.filter(company=manager.company)
+        return products
 
-    def get(self, request, *args, **kwargs):
-        """Handles GET request responding with categories list.
+    def perform_create(self, serializer):
+        category_id = self.request.data['category']
+        category = get_object_or_404(Category, id=category_id)
+        manager = get_object_or_404(Manager, user=self.request.user)
+        serializer.save(company=manager.company, category=category)
 
-        Parameters
-        ----------
-        request
-            HTTP GET request for 'categories/' url.
-        args
-            Signature argument.
-        kwargs
-            Signature argument.
+    def update(self, request, *args, **kwargs):
+        product = get_object_or_404(Product, id=kwargs['pk'])
+        manager = get_object_or_404(Manager, user=request.user)
+        if manager.company != product.company:
+            return Response(status=404)
 
-        Returns
-        -------
-            Response with each category instance.
+        fields_to_update = request.data
+        for field, value in fields_to_update.items():
+            setattr(product, field, value)
+        product.save()
+        updated_product = self.get_serializer(product).data
+        return Response(updated_product)
 
-        """
-
-        categories = self.get_queryset()
-        categories_list = [{"id": item.id, "name": item.name} for item in categories]
-
-        return JsonResponse(categories_list, safe=False)
-
-
-class CategoryView(ListView):
-    """Handles requests on 'categories/<int:pk>/' url."""
-
-    model = Category
-
-    def get(self, request, *args, **kwargs):
-        """Handles GET request responding with vehicles list.
-
-        Parameters
-        ----------
-        request
-            HTTP GET request for 'categories/<int:pk>/' url.
-        args
-            Signature argument.
-        kwargs
-            Storage for 'pk' query parameter.
-
-        Returns
-        -------
-            Response with specific category vehicles.
-
-        """
-
-        category = get_object_or_404(self.get_queryset(), id=kwargs['pk'])
-        motobikes = Product.objects.filter(category=category)
-        category_vehicles_list = [
-            {
-                "id": item.id,
-                "name": item.name,
-                "vendor": item.company.name,
-                "category": item.category.name,
-                "description": item.description,
-            }
-            for item in motobikes
+    @action(methods=['get'], detail=False, url_path='category/(?P<pk>[^/.]+)')
+    def category(self, request, pk):
+        category = get_object_or_404(Category, id=pk)
+        category_products = self.get_queryset().filter(category=category)
+        category_products_list = [
+            CategoryProductSerializer(item).data for item in category_products
         ]
+        return Response(category_products_list)
 
-        return JsonResponse(category_vehicles_list, safe=False)
 
+class PublicProductViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get']
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = PublicProductSerializer
+    pagination_class = PublicProductListPagination
+    queryset = Product.objects.all()
 
-class MotobikeView(DetailView):
-    """Handles requests on 'details/<int:pk>/' url."""
-
-    model = Product
-
-    def get(self, request, *args, **kwargs):
-        """Handles GET request responding with vehicle data.
-
-        Parameters
-        ----------
-        request
-            HTTP GET request for 'details/<int:pk>/' url.
-        args
-            Signature argument.
-        kwargs
-            Storage for 'pk' query parameter.
-
-        Returns
-        -------
-            Response with specific vehicle data.
-
-        """
-
-        vehicle = get_object_or_404(self.model, id=kwargs['pk'])
-        vehicle_data = {
-            "id": vehicle.id,
-            "name": vehicle.name,
-            "vendor": vehicle.company.name,
-            "category": vehicle.category.name,
-            "description": vehicle.description,
-        }
-
-        return JsonResponse(vehicle_data)
+    @action(methods=['get'], detail=False, url_path='category/(?P<pk>[^/.]+)')
+    def category(self, request, pk):
+        category = get_object_or_404(Category, id=pk)
+        category_products = self.get_queryset().filter(category=category)
+        products_per_page = self.paginate_queryset(category_products)
+        category_products_list = [
+            PublicCategoryProductSerializer(item).data for item in products_per_page
+        ]
+        return self.get_paginated_response(category_products_list)
