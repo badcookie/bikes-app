@@ -3,6 +3,8 @@ from .models import Product, Category
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """Processes list of products of manager's company."""
+
     category = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), write_only=True
     )
@@ -14,6 +16,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class CategoryProductSerializer(serializers.ModelSerializer):
+    """Processes list of products of manager's company for a particular category."""
+
     category_name = serializers.CharField(source='category.name')
 
     class Meta:
@@ -22,6 +26,8 @@ class CategoryProductSerializer(serializers.ModelSerializer):
 
 
 class PublicProductSerializer(serializers.ModelSerializer):
+    """Processes list of all existing products."""
+
     company_name = serializers.CharField(source='company.name')
 
     class Meta:
@@ -30,6 +36,8 @@ class PublicProductSerializer(serializers.ModelSerializer):
 
 
 class PublicCategoryProductSerializer(serializers.ModelSerializer):
+    """Processes list of all existing products for a particular category."""
+
     class Meta:
         model = Product
         fields = ('id', 'name', 'description')
