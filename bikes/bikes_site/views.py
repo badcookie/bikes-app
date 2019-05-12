@@ -68,11 +68,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         """
 
-        product = get_object_or_404(Product, id=kwargs['pk'])
-        manager = get_object_or_404(Manager, user=request.user)
-        if manager.company != product.company:
-            return Response(status=404)
-
+        product = self.get_object()
         fields_to_update = request.data
         for field, value in fields_to_update.items():
             setattr(product, field, value)
