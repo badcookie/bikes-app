@@ -20,7 +20,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     """Defines actions and queries accessible to managers only."""
 
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = ProductSerializer
+
+    def get_serializer_class(self):
+        return (
+            CategoryProductSerializer
+            if self.action == 'category'
+            else ProductSerializer
+        )
 
     def get_queryset(self):
         """Collects all products for manager's company.
@@ -31,7 +37,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         """
 
-        manager = get_object_or_404(Manager, user=self.request.user)
+        manager = Manager.objects.get(user=self.request.user)
         products = Product.objects.filter(company=manager.company)
         return products
 
@@ -50,7 +56,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         category_id = self.request.data['category']
         category = get_object_or_404(Category, id=category_id)
-        manager = get_object_or_404(Manager, user=self.request.user)
+        manager = Manager.objects.get(user=self.request.user)
         serializer.save(company=manager.company, category=category)
 
     def update(self, request, *args, **kwargs):
@@ -95,7 +101,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         category = get_object_or_404(Category, id=pk)
         category_products = self.get_queryset().filter(category=category)
         category_products_list = [
-            CategoryProductSerializer(item).data for item in category_products
+            self.get_serializer(item).data for item in category_products
         ]
         return Response(category_products_list)
 
@@ -105,9 +111,15 @@ class PublicProductViewSet(viewsets.ModelViewSet):
 
     http_method_names = ['get']
     permission_classes = (permissions.AllowAny,)
-    serializer_class = PublicProductSerializer
     pagination_class = PublicProductListPagination
     queryset = Product.objects.all()
+
+    def get_serializer_class(self):
+        return (
+            PublicCategoryProductSerializer
+            if self.action == 'category'
+            else PublicProductSerializer
+        )
 
     @action(methods=['get'], detail=False, url_path='category/(?P<pk>[^/.]+)')
     def category(self, request, pk):
@@ -129,6 +141,6 @@ class PublicProductViewSet(viewsets.ModelViewSet):
         category_products = self.get_queryset().filter(category=category)
         products_per_page = self.paginate_queryset(category_products)
         category_products_list = [
-            PublicCategoryProductSerializer(item).data for item in products_per_page
+            self.get_serializer(item).data for item in products_per_page
         ]
         return self.get_paginated_response(category_products_list)
