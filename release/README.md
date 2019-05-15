@@ -7,7 +7,7 @@
 * Регисрируемся на [heroku](https://heroku.com)
 * Создаем приложние (имя выбираете сами)
 
-![alt text](images/heroku1.jpg.png)
+![alt text](images/heroku1.png)
 
 ### 3. Настройка переменных CI
 
