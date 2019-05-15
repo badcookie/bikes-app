@@ -11,6 +11,7 @@ cache:
 stages:
   - check
   - test
+  - deploy
 
 before_script:
   - python -V
@@ -38,3 +39,15 @@ test:
   script:
     - cd $CI_COMMIT_REF_NAME
     - ./start_test.sh
+
+release:
+  stage: deploy
+  tags:
+    - docker
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_KEY
+  only:
+    - release

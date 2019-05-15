@@ -49,7 +49,7 @@ def create_issues(issue_id):
                 assigned_to_id=user['id'],
                 parent_issue_id=base_issue.id,
                 subject='{}: {}'.format(issue['subject'], user['name']),
-                **base_issue_kwargs
+                **base_issue_kwargs,
             )
         except Exception as e:
             # Наш redmine отдает ответ с ошибкой, поэтому просто игнорируем
