@@ -1,7 +1,8 @@
-import dj_database_url
-from bikes.settings import *
+# import dj_database_url
+from bikes.bikes.settings import *
 
 ALLOWED_HOSTS.append('os-bikes.herokuapp.com')
+ALLOWED_HOSTS.append('0.0.0.0')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,7 +18,8 @@ INSTALLED_APPS = [
     'bikes_site',
 ]
 
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+# DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+ROOT_URLCONF = 'bikes.bikes.urls'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -53,4 +55,4 @@ SWAGGER_SETTINGS = {
     },
 }
 
-DEBUG = False
+DEBUG = True
