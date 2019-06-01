@@ -41,3 +41,11 @@ class PublicCategoryProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('id', 'name', 'description')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Processes list of all existing categories."""
+
+    class Meta:
+        model = Category
+        fields = '__all__'
